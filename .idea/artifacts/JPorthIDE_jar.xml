@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="JPorthIDE:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/JPorthIDE_jar</output-path>
+    <root id="archive" name="JPorthIDE.jar">
+      <element id="module-output" name="JPorthIDE" />
+    </root>
+  </artifact>
+</component>
