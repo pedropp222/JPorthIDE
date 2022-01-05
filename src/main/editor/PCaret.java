@@ -31,7 +31,7 @@ public class PCaret extends DefaultCaret
             return;
 
         int dot = getDot();
-        Rectangle2D r = null;
+        Rectangle2D r;
         try {
             r = comp.modelToView2D(dot);
         } catch (BadLocationException e) {
@@ -59,15 +59,13 @@ public class PCaret extends DefaultCaret
         if (isVisible()) {
             g.setColor(comp.getCaretColor());
 
-            Font f = comp.getFont();
-
             //g.drawRect(r.x - comp.getFontMetrics(f).charWidth('c') ,r.y - r.height,comp.getFontMetrics(f).charWidth('c'),comp.getFontMetrics(f).getHeight());
 
             g.drawOval((int)r.getX(), (int)r.getY() + dist - 5, width,10);
 
             //g.drawLine(r.x, r.y + dist, r.x, r.y + dist + 4); // 5 vertical
             // pixels
-            //g.drawLine(r.x, r.y + dist + 4, r.x + 4, r.y + dist + 4); // 5 horiz
+            //g.drawLine(r.x, r.y + dist + 4, r.x + 4, r.y + dist + 4); // 5
             // px
         }
     }

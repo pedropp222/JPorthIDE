@@ -3,16 +3,18 @@ package main.editor;
 import main.CodeWindow;
 
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultCaret;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.*;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
@@ -35,8 +37,6 @@ public class TextEditor
     private SyntaxHighlighting syntax;
 
     private ProcessBuilder builder;
-
-    private PCaret caret;
 
     private final CodeWindow window;
 
@@ -64,13 +64,59 @@ public class TextEditor
 
         builder = new ProcessBuilder();
 
-        caret = new PCaret();
+        // caret initialization
+
+        PCaret caret = new PCaret();
 
         text.setCaretColor(new Color(245, 197, 14));
 
         text.firePropertyChange("caretWidth",-1,2);
 
-        //text.setCaret(caret);
+        text.setCaret(caret);
+
+        // drag and drop support
+
+        text.setDropTarget(new DropTarget()
+        {
+            @Override
+            public synchronized void drop(DropTargetDropEvent e)
+            {
+                try
+                {
+                    e.acceptDrop(DnDConstants.ACTION_REFERENCE);
+                    List<File> files = (List<File>) e.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    for (File f : files)
+                    {
+                        if (f.exists())
+                        {
+                            if (f.isDirectory())
+                            {
+                                Console.WriteLine("ERROR - Can not open a directory");
+                            }
+                            else if (f.getAbsolutePath().endsWith(".porth"))
+                            {
+                                SetNewName(f.getAbsolutePath());
+                                LoadFile(f);
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("ERROR - File is not a .porth file");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("ERROR - File does not exist");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("ERROR - Could not set up drag and drop");
+                }
+            }
+        });
+
 
         text.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -128,62 +174,58 @@ public class TextEditor
 
 
 
-        text.addCaretListener(new CaretListener()
+        text.addCaretListener(e ->
         {
-            @Override
-            public void caretUpdate(CaretEvent e)
+            if (loading) return;
+
+            lastIndex = e.getDot();
+
+            lastLine = GetLine(lastIndex);
+
+            if (updateAll)
             {
-                if (loading) return;
-
-                lastIndex = e.getDot();
-
-                lastLine = GetLine(lastIndex);
-
-                if (updateAll)
+                updateAll = false;
+                try
                 {
-                    updateAll = false;
-                    try
-                    {
-                        syntax.UpdateStyleAll();
-                    } catch (BadLocationException ex)
-                    {
-                        ex.printStackTrace();
-                    }
-                }
-                else
+                    syntax.UpdateStyleAll();
+                } catch (BadLocationException ex)
                 {
-                    try
-                    {
-                        syntax.UpdateStyleLine(GetLine(e.getDot()));
-                    } catch (BadLocationException ex)
-                    {
-                        ex.printStackTrace();
-                    }
+                    ex.printStackTrace();
                 }
-
-                //always convert tabs to 4 spaces
-                if (removeTab)
-                {
-                    removeTab = false;
-
-                    SwingUtilities.invokeLater(()->
-                    {
-                        try
-                        {
-                            text.getStyledDocument().remove(e.getDot()-1,1);
-                            text.getStyledDocument().insertString(e.getDot(),"   ",text.getStyle("regular"));
-                        } catch (BadLocationException ex)
-                        {
-                            Console.WriteLine("Error deleting tab "+ex.getMessage());
-                        }
-                     });
-
-                }
-
-                UpdateStats(e.getDot());
-
-                //doc.setLogicalStyle(lastIndex,doc.getStyle("regular"));
             }
+            else
+            {
+                try
+                {
+                    syntax.UpdateStyleLine(GetLine(e.getDot()));
+                } catch (BadLocationException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+
+            //always convert tabs to 4 spaces
+            if (removeTab)
+            {
+                removeTab = false;
+
+                SwingUtilities.invokeLater(()->
+                {
+                    try
+                    {
+                        text.getStyledDocument().remove(e.getDot()-1,1);
+                        text.getStyledDocument().insertString(e.getDot(),"   ",text.getStyle("regular"));
+                    } catch (BadLocationException ex)
+                    {
+                        Console.WriteLine("Error deleting tab "+ex.getMessage());
+                    }
+                 });
+
+            }
+
+            UpdateStats(e.getDot());
+
+            //doc.setLogicalStyle(lastIndex,doc.getStyle("regular"));
         });
     }
 
@@ -264,23 +306,14 @@ public class TextEditor
             return;
         }
 
-        Runnable r = new Runnable()
+        Runnable r = () ->
         {
-            @Override
-            public void run()
+            try
             {
-                //console.setText("");
-
-                try
-                {
-                    tokenList.AddTokensLine(GetTextLine(lastLine),lastLine,GetStartOffset(lastLine));
-                } catch (BadLocationException e)
-                {
-                    e.printStackTrace();
-                }
-
-                //console.append("Token count: "+tokenList.tokens.size()+"\n");
-                //console.append(tokenList.GetErrors());
+                tokenList.AddTokensLine(GetTextLine(lastLine),lastLine,GetStartOffset(lastLine));
+            } catch (BadLocationException e)
+            {
+                e.printStackTrace();
             }
         };
         SwingUtilities.invokeLater(r);

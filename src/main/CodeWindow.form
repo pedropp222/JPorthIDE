@@ -42,7 +42,12 @@
             <children>
               <component id="df6fa" class="javax.swing.JTextPane" binding="editorText">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <dragEnabled value="false"/>
+                  <dropMode value="USE_SELECTION"/>
+                  <selectedTextColor color="-328966"/>
+                  <selectionColor color="-10725573"/>
+                </properties>
               </component>
             </children>
           </scrollpane>
