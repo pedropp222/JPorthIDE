@@ -8,6 +8,8 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.*;
@@ -20,7 +22,9 @@ public class TextEditor
 
     private String fileName;
     private boolean tempFile;
+
     private boolean updateAll;
+    private boolean removeTab;
 
     private int lastIndex;
     private int lastLine;
@@ -32,7 +36,7 @@ public class TextEditor
 
     private ProcessBuilder builder;
 
-
+    private PCaret caret;
 
     private final CodeWindow window;
 
@@ -43,6 +47,7 @@ public class TextEditor
         fileName = f;
 
         updateAll = false;
+        removeTab = false;
 
         lastIndex = 0;
         lastLine = 0;
@@ -58,6 +63,14 @@ public class TextEditor
         syntax = new SyntaxHighlighting(this);
 
         builder = new ProcessBuilder();
+
+        caret = new PCaret();
+
+        text.setCaretColor(new Color(245, 197, 14));
+
+        text.firePropertyChange("caretWidth",-1,2);
+
+        //text.setCaret(caret);
 
         text.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -79,6 +92,8 @@ public class TextEditor
 
             }
         });
+
+
 
         text.addKeyListener(new KeyAdapter()
         {
@@ -104,8 +119,14 @@ public class TextEditor
                         }
                     }
                 }
+                else if (e.getKeyCode() == KeyEvent.VK_TAB)
+                {
+                    removeTab = true;
+                }
             }
         });
+
+
 
         text.addCaretListener(new CaretListener()
         {
@@ -138,6 +159,25 @@ public class TextEditor
                     {
                         ex.printStackTrace();
                     }
+                }
+
+                //always convert tabs to 4 spaces
+                if (removeTab)
+                {
+                    removeTab = false;
+
+                    SwingUtilities.invokeLater(()->
+                    {
+                        try
+                        {
+                            text.getStyledDocument().remove(e.getDot()-1,1);
+                            text.getStyledDocument().insertString(e.getDot(),"   ",text.getStyle("regular"));
+                        } catch (BadLocationException ex)
+                        {
+                            Console.WriteLine("Error deleting tab "+ex.getMessage());
+                        }
+                     });
+
                 }
 
                 UpdateStats(e.getDot());

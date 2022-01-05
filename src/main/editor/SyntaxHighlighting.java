@@ -27,6 +27,8 @@ public class SyntaxHighlighting
 
         doc = textPane.getStyledDocument();
 
+        StyledEditorKit s = new StyledEditorKit();
+
         setupDocument(doc);
     }
 

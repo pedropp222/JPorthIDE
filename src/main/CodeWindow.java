@@ -13,15 +13,15 @@ import java.io.File;
 
 public class CodeWindow extends JFrame
 {
-    private JTextPane textPane1;
     private JPanel mainPanel;
     private JTextArea console;
     private JTextArea documentStats;
+    private JTextPane editorText;
 
     private final TextEditor codeEditor;
 
 
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = "0.0.2a";
 
 
     public static void main(String[] args) throws BadLocationException
@@ -65,7 +65,7 @@ public class CodeWindow extends JFrame
             }
         };
 
-        codeEditor = new TextEditor(this,textPane1,f.getAbsolutePath(),true);
+        codeEditor = new TextEditor(this,editorText,f.getAbsolutePath(),true);
 
         SetTitle(codeEditor.getFileName(),false);
 
@@ -140,7 +140,7 @@ public class CodeWindow extends JFrame
 
         setVisible(true);
 
-        textPane1.setFocusable(true);
+        editorText.setFocusable(true);
     }
 
     public void SetTitle(String file, boolean dirty)
