@@ -18,6 +18,7 @@ public class CodeWindow extends JFrame
 
     private final TextEditor codeEditor;
 
+    private final File compLoc;
 
     public static final String VERSION = "0.0.2a";
 
@@ -35,7 +36,7 @@ public class CodeWindow extends JFrame
         Console.text = console;
         DocumentStats.stats = documentStats;
 
-        File compLoc = new File(System.getProperty("user.dir")+"/porth.py");
+        compLoc = new File(System.getProperty("user.dir")+"/porth.py");
 
         if (!compLoc.exists())
         {

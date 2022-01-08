@@ -52,7 +52,7 @@ public class SyntaxHighlighting
 
         //\/\/.+|\"[a-zA-Z ]+\"+|[a-z0-9A-Z_+\-><\(\)]+
         //comment | string | anything else
-        Pattern p = Pattern.compile("//.+|\"[0-9a-zA-Z _\\-?]+\"+|[a-z0-9A-Z_+\\-><()]+");
+        Pattern p = Pattern.compile("//.+|\"[0-9a-zA-Z _\\-?.,#\\\\=%$']+\"+|[a-z0-9A-Z_+\\-><()]+");
         Matcher match = p.matcher(txt);
 
         //System.out.println("Working line "+t);
@@ -180,5 +180,7 @@ public class SyntaxHighlighting
         s = doc.addStyle("string",s);
         StyleConstants.setForeground(s,new Color(6, 122, 178));
         StyleConstants.setBold(s,false);
+
+        doc.setLogicalStyle(textPane.getText().length()-1,doc.getStyle("regular"));
     }
 }

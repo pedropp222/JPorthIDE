@@ -72,7 +72,7 @@ public class TextEditor
 
         text.firePropertyChange("caretWidth",-1,2);
 
-        text.setCaret(caret);
+        //text.setCaret(caret);
 
         // drag and drop support
 
@@ -222,6 +222,7 @@ public class TextEditor
                  });
 
             }
+
 
             UpdateStats(e.getDot());
 
