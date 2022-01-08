@@ -40,12 +40,13 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="5836e" class="javax.swing.JTextPane" binding="textPane1" default-binding="true">
+              <component id="df6fa" class="javax.swing.JTextPane" binding="editorText">
                 <constraints/>
                 <properties>
-                  <caretColor color="-328966"/>
-                  <font name="Consolas" size="18" style="0"/>
-                  <foreground color="-328966"/>
+                  <dragEnabled value="false"/>
+                  <dropMode value="USE_SELECTION"/>
+                  <selectedTextColor color="-328966"/>
+                  <selectionColor color="-10725573"/>
                 </properties>
               </component>
             </children>

@@ -6,22 +6,21 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 
 public class CodeWindow extends JFrame
 {
-    private JTextPane textPane1;
     private JPanel mainPanel;
     private JTextArea console;
     private JTextArea documentStats;
+    private JTextPane editorText;
 
     private final TextEditor codeEditor;
 
+    private final File compLoc;
 
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = "0.0.2a";
 
 
     public static void main(String[] args) throws BadLocationException
@@ -37,7 +36,7 @@ public class CodeWindow extends JFrame
         Console.text = console;
         DocumentStats.stats = documentStats;
 
-        File compLoc = new File(System.getProperty("user.dir")+"/porth.py");
+        compLoc = new File(System.getProperty("user.dir")+"/porth.py");
 
         if (!compLoc.exists())
         {
@@ -65,7 +64,7 @@ public class CodeWindow extends JFrame
             }
         };
 
-        codeEditor = new TextEditor(this,textPane1,f.getAbsolutePath(),true);
+        codeEditor = new TextEditor(this,editorText,f.getAbsolutePath(),true);
 
         SetTitle(codeEditor.getFileName(),false);
 
@@ -74,58 +73,43 @@ public class CodeWindow extends JFrame
 
         JMenuItem save = new JMenuItem("Save");
         save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        save.addActionListener(new ActionListener()
+        save.addActionListener(e ->
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
+            if (codeEditor.isTempFile())
             {
-                if (codeEditor.isTempFile())
+                JFileChooser jf = new JFileChooser();
+
+                jf.setDialogTitle("Save new porth file...");
+                jf.setFileFilter(porthFilter);
+
+                jf.setCurrentDirectory(new File(System.getProperty("user.dir")));
+                if (jf.showSaveDialog(CodeWindow.this) == JFileChooser.APPROVE_OPTION)
                 {
-                    JFileChooser jf = new JFileChooser();
-
-                    jf.setDialogTitle("Save new porth file...");
-                    jf.setFileFilter(porthFilter);
-
-                    jf.setCurrentDirectory(new File(System.getProperty("user.dir")));
-                    if (jf.showSaveDialog(CodeWindow.this) == JFileChooser.APPROVE_OPTION)
-                    {
-                        codeEditor.SetNewName(jf.getSelectedFile().getAbsolutePath());
-                    }
+                    codeEditor.SetNewName(jf.getSelectedFile().getAbsolutePath());
                 }
-                codeEditor.SaveFile();
             }
+            codeEditor.SaveFile();
         });
 
         JMenuItem open = new JMenuItem("Open");
         open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        open.addActionListener(new ActionListener()
+        open.addActionListener(e ->
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                JFileChooser file = new JFileChooser();
+            JFileChooser file = new JFileChooser();
 
-                file.setDialogTitle("Open porth file");
-                file.setCurrentDirectory(new File(System.getProperty("user.dir")));
-                file.setFileFilter(porthFilter);
-                if (file.showOpenDialog(CodeWindow.this) == JFileChooser.APPROVE_OPTION)
-                {
-                    codeEditor.SetNewName(file.getSelectedFile().getAbsolutePath());
-                    codeEditor.LoadFile(file.getSelectedFile());
-                }
+            file.setDialogTitle("Open porth file");
+            file.setCurrentDirectory(new File(System.getProperty("user.dir")));
+            file.setFileFilter(porthFilter);
+            if (file.showOpenDialog(CodeWindow.this) == JFileChooser.APPROVE_OPTION)
+            {
+                codeEditor.SetNewName(file.getSelectedFile().getAbsolutePath());
+                codeEditor.LoadFile(file.getSelectedFile());
             }
         });
 
         JMenuItem quit = new JMenuItem("Quit");
         quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        quit.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                System.exit(0);
-            }
-        });
+        quit.addActionListener(e -> System.exit(0));
 
         menu.add(open);
         menu.add(save);
@@ -140,7 +124,7 @@ public class CodeWindow extends JFrame
 
         setVisible(true);
 
-        textPane1.setFocusable(true);
+        editorText.setFocusable(true);
     }
 
     public void SetTitle(String file, boolean dirty)

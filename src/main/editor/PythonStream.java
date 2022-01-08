@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 
 public class PythonStream implements Runnable
 {
-    private InputStream inputStream;
-    private Consumer<String> consumer;
+    private final InputStream inputStream;
+    private final Consumer<String> consumer;
 
     public PythonStream(InputStream inputStream, Consumer<String> consumer) {
         this.inputStream = inputStream;
