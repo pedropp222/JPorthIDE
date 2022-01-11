@@ -20,7 +20,7 @@ public class CodeWindow extends JFrame
 
     private final File compLoc;
 
-    public static final String VERSION = "0.0.2a";
+    public static final String VERSION = "0.0.3a";
 
 
     public static void main(String[] args) throws BadLocationException
@@ -70,6 +70,7 @@ public class CodeWindow extends JFrame
 
         JMenuBar mb = new JMenuBar();
         JMenu menu = new JMenu("File");
+        JMenu tools = new JMenu("Tools");
 
         JMenuItem save = new JMenuItem("Save");
         save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
@@ -115,7 +116,24 @@ public class CodeWindow extends JFrame
         menu.add(save);
         menu.add(quit);
 
+        JMenuItem build = new JMenuItem("Build file");
+        build.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+
+        build.addActionListener(e->
+                {
+                    if (codeEditor.isTempFile())
+                    {
+                        save.doClick();
+                    }
+
+                    codeEditor.BuildFile();
+                }
+                );
+
+        tools.add(build);
+
         mb.add(menu);
+        mb.add(tools);
 
         setJMenuBar(mb);
 

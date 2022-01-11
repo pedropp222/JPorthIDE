@@ -367,6 +367,34 @@ public class TextEditor
         //assert exitCode == 0;
     }
 
+    public void BuildFile()
+    {
+        try
+        {
+            builder.directory(new File(System.getProperty("user.dir")));
+            builder.command("cmd.exe", "/c", "python", "porth.py", "com", fileName);
+
+            Console.Clear();
+
+            Process process = builder.start();
+            PythonStream pythonCheck =
+                    new PythonStream(process.getErrorStream(), Console::WriteLine);
+            Executors.newSingleThreadExecutor().submit(pythonCheck);
+            int exitCode = process.waitFor();
+            if (exitCode == 0)
+            {
+                Console.WriteLine("BUILD SUCCESSFUL - No issues found");
+            } else
+            {
+                Console.WriteLine("BUILD FAILED - " + exitCode);
+            }
+        }
+        catch (IOException | InterruptedException e)
+        {
+            Console.WriteLine("ERROR when trying to build program - "+e.getMessage());
+        }
+    }
+
     private void UpdateStats(int pos)
     {
         int ln = GetLine(pos);
