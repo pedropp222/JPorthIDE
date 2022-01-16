@@ -36,7 +36,7 @@ public class TextEditor
     private EditorTokens tokenList;
     private SyntaxHighlighting syntax;
 
-    private ProcessBuilder builder;
+    private ProgramBuilder builder;
 
     private final CodeWindow window;
 
@@ -62,7 +62,7 @@ public class TextEditor
         tokenList = new EditorTokens();
         syntax = new SyntaxHighlighting(this);
 
-        builder = new ProcessBuilder();
+        builder = new ProgramBuilder(fileName);
 
         // caret initialization
 
@@ -249,7 +249,7 @@ public class TextEditor
 
             tempFile = false;
 
-            TypeCheck();
+            builder.TypeCheck();
             return true;
         }
         catch (IOException e)
@@ -324,7 +324,7 @@ public class TextEditor
             return;
         }
 
-        TypeCheck();
+        builder.TypeCheck();
 
         /*if (isWindows) {
             builder.command("cmd.exe", "/c", "dir");
@@ -338,61 +338,9 @@ public class TextEditor
 
     }
 
-    private void TypeCheck()
+    public ProgramBuilder getBuilder()
     {
-        try
-        {
-            builder.directory(new File(System.getProperty("user.dir")));
-            builder.command("cmd.exe", "/c", "python", "porth.py", "check", fileName);
-
-            Console.Clear();
-
-            Process process = builder.start();
-            PythonStream pythonCheck =
-                    new PythonStream(process.getErrorStream(), Console::WriteLine);
-            Executors.newSingleThreadExecutor().submit(pythonCheck);
-            int exitCode = process.waitFor();
-            if (exitCode == 0)
-            {
-                Console.WriteLine("Finished checking - No issues found");
-            } else
-            {
-                Console.WriteLine("Finished checking - " + exitCode);
-            }
-        }
-        catch (IOException | InterruptedException e )
-        {
-            Console.WriteLine("ERROR when trying to type check program - "+e.getMessage());
-        }
-        //assert exitCode == 0;
-    }
-
-    public void BuildFile()
-    {
-        try
-        {
-            builder.directory(new File(System.getProperty("user.dir")));
-            builder.command("cmd.exe", "/c", "python", "porth.py", "com", fileName);
-
-            Console.Clear();
-
-            Process process = builder.start();
-            PythonStream pythonCheck =
-                    new PythonStream(process.getErrorStream(), Console::WriteLine);
-            Executors.newSingleThreadExecutor().submit(pythonCheck);
-            int exitCode = process.waitFor();
-            if (exitCode == 0)
-            {
-                Console.WriteLine("BUILD SUCCESSFUL - No issues found");
-            } else
-            {
-                Console.WriteLine("BUILD FAILED - " + exitCode);
-            }
-        }
-        catch (IOException | InterruptedException e)
-        {
-            Console.WriteLine("ERROR when trying to build program - "+e.getMessage());
-        }
+        return builder;
     }
 
     private void UpdateStats(int pos)
@@ -426,6 +374,7 @@ public class TextEditor
         }
 
         fileName = x;
+        builder.ChangeFile(fileName);
     }
 
     public void LoadFile(File f)

@@ -1,6 +1,8 @@
 package main;
 
 import main.editor.*;
+import main.editor.utils.SystemType;
+import main.editor.utils.WorkingSystem;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -20,7 +22,7 @@ public class CodeWindow extends JFrame
 
     private final File compLoc;
 
-    public static final String VERSION = "0.0.3a";
+    public static final String VERSION = "0.0.3.1a";
 
 
     public static void main(String[] args) throws BadLocationException
@@ -35,6 +37,24 @@ public class CodeWindow extends JFrame
 
         Console.text = console;
         DocumentStats.stats = documentStats;
+
+        String osname = System.getProperty("os.name");
+
+        Console.WriteLine("Initializing on system "+osname);
+
+        if (osname.contains("Win"))
+        {
+            WorkingSystem.setSystem(SystemType.WINDOWS);
+        }
+        else if (osname.contains("nix") || osname.contains("nux") || osname.contains("aix"))
+        {
+            WorkingSystem.setSystem(SystemType.LINUX);
+        }
+        else
+        {
+            WorkingSystem.setSystem(SystemType.OTHER);
+            Console.WriteLine("Incompatible system, some features may not work.");
+        }
 
         compLoc = new File(System.getProperty("user.dir")+"/porth.py");
 
@@ -126,7 +146,7 @@ public class CodeWindow extends JFrame
                         save.doClick();
                     }
 
-                    codeEditor.BuildFile();
+                    codeEditor.getBuilder().BuildFile();
                 }
                 );
 
