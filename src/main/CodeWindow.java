@@ -22,7 +22,7 @@ public class CodeWindow extends JFrame
 
     private final File compLoc;
 
-    public static final String VERSION = "0.0.3.1a";
+    public static final String VERSION = "0.0.3.2a";
 
 
     public static void main(String[] args) throws BadLocationException
@@ -38,7 +38,16 @@ public class CodeWindow extends JFrame
         Console.text = console;
         DocumentStats.stats = documentStats;
 
-        String osname = System.getProperty("os.name");
+        String osname = "";
+
+        try
+        {
+            osname = System.getProperty("os.name");
+        }
+        catch (Exception e)
+        {
+            System.out.println("Exception getting property os name: "+e.getMessage());
+        }
 
         Console.WriteLine("Initializing on system "+osname);
 

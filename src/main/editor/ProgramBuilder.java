@@ -1,10 +1,12 @@
 package main.editor;
 
+import main.editor.utils.SystemType;
 import main.editor.utils.WorkingSystem;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class to typecheck / build a particular file
@@ -29,7 +31,7 @@ public class ProgramBuilder
         try
         {
             builder.directory(new File(System.getProperty("user.dir")));
-            builder.command(WorkingSystem.cmdCall, WorkingSystem.param, "python", "--version");
+            builder.command(WorkingSystem.cmdCall, WorkingSystem.param, "python --version");
 
             Process process = builder.start();
             ErrorCheckStream pythonCheck =
@@ -43,7 +45,7 @@ public class ProgramBuilder
             } else
             {
                 builder.directory(new File(System.getProperty("user.dir")));
-                builder.command(WorkingSystem.cmdCall, WorkingSystem.param, "python3", "--version");
+                builder.command(WorkingSystem.cmdCall, WorkingSystem.param, "python3 --version");
 
                 process = builder.start();
                 Executors.newSingleThreadExecutor().submit(pythonCheck);
@@ -77,9 +79,17 @@ public class ProgramBuilder
         try
         {
             builder.directory(new File(System.getProperty("user.dir")));
-            builder.command(WorkingSystem.cmdCall, WorkingSystem.param, availablePython, "porth.py", "check", fileName);
+            if (WorkingSystem.getSystem() == SystemType.LINUX)
+            {
+                builder.command(WorkingSystem.cmdCall, WorkingSystem.param, availablePython+" porth.py check " + fileName);
+                Console.WriteLine("exec: "+WorkingSystem.cmdCall+" "+availablePython+" porth.py check " + fileName);
+            }
+            else
+            {
+                builder.command(WorkingSystem.cmdCall, WorkingSystem.param, availablePython, "porth.py","check",fileName);
+            }
 
-            Console.Clear();
+            //Console.Clear();
 
             Process process = builder.start();
             ErrorCheckStream pythonCheck =
@@ -112,7 +122,15 @@ public class ProgramBuilder
         try
         {
             builder.directory(new File(System.getProperty("user.dir")));
-            builder.command(WorkingSystem.cmdCall, WorkingSystem.param, availablePython, "porth.py", "com", fileName);
+
+            if (WorkingSystem.getSystem() == SystemType.WINDOWS)
+            {
+                builder.command(WorkingSystem.cmdCall, WorkingSystem.param, availablePython, "porth.py","com",fileName);
+            }
+            else
+            {
+                builder.command(WorkingSystem.cmdCall, WorkingSystem.param, availablePython+" porth.py com " + fileName);
+            }
 
             Console.Clear();
 

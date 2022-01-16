@@ -19,5 +19,12 @@ public class WorkingSystem
             cmdCall = "sh";
             param = "-c";
         }
+
+        system = t;
+    }
+
+    public static SystemType getSystem()
+    {
+        return system;
     }
 }
