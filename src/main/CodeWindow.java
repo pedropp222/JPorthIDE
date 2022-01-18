@@ -22,7 +22,7 @@ public class CodeWindow extends JFrame
 
     private final File compLoc;
 
-    public static final String VERSION = "0.0.3.2a";
+    public static final String VERSION = "0.0.4a";
 
 
     public static void main(String[] args) throws BadLocationException

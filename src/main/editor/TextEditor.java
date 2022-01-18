@@ -5,7 +5,10 @@ import main.CodeWindow;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
@@ -40,6 +43,8 @@ public class TextEditor
 
     private final CodeWindow window;
 
+    private final UndoManager undoManager;
+
     public TextEditor(CodeWindow w, JTextPane p, String f, boolean temp)
     {
         text = p;
@@ -54,6 +59,21 @@ public class TextEditor
 
         window = w;
 
+        undoManager = new UndoManager();
+
+        text.getDocument().addUndoableEditListener(new UndoableEditListener()
+        {
+            @Override
+            public void undoableEditHappened(UndoableEditEvent e)
+            {
+                if (!e.getEdit().getPresentationName().startsWith("style"))
+                {
+                    undoManager.addEdit(e.getEdit());
+                    //System.out.println(e.getEdit().getPresentationName());
+                }
+            }
+        });
+
         Initialize();
     }
 
@@ -63,6 +83,7 @@ public class TextEditor
         syntax = new SyntaxHighlighting(this);
 
         builder = new ProgramBuilder(fileName);
+
 
         // caret initialization
 
@@ -149,7 +170,6 @@ public class TextEditor
                 super.keyPressed(e);
                 if (e.getKeyCode()==KeyEvent.VK_V && e.isControlDown())
                 {
-                    System.out.println("pasted");
                     updateAll = true;
                 }
                 else if (e.getKeyCode()==KeyEvent.VK_S && e.isControlDown())
@@ -163,6 +183,20 @@ public class TextEditor
                         {
                             Console.WriteLine("ERROR in text syntax styler "+ex.getMessage());
                         }
+                    }
+                }
+                else if (e.getKeyCode()==KeyEvent.VK_Z && e.isControlDown())
+                {
+                    if (undoManager.canUndo())
+                    {
+                        undoManager.undo();
+                    }
+                }
+                else if (e.getKeyCode()==KeyEvent.VK_Y && e.isControlDown())
+                {
+                    if (undoManager.canRedo())
+                    {
+                        undoManager.redo();
                     }
                 }
                 else if (e.getKeyCode() == KeyEvent.VK_TAB)
